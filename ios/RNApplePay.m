@@ -146,16 +146,27 @@ RCT_EXPORT_METHOD(complete:(NSNumber *_Nonnull)status promiseWithResolver:(RCTPr
                 paymentType = @"unknown";
                 break;
         }
+
+        NSString * paymentNetwork = payment.token.paymentMethod.network;
+        NSString * displayName = payment.token.paymentMethod.displayName;
+        NSString * transactionIdentifier = payment.token.transactionIdentifier;
         
-        NSDictionary *paymentMethodDictionary = @{@"network": payment.token.paymentMethod.network, @"type": paymentType, @"displayName": payment.token.paymentMethod.displayName};
-        NSDictionary *cryptogramDictionary = @{@"paymentData": paymentDataDictionary,
-                                                @"transactionIdentifier": payment.token.transactionIdentifier,
-                                                @"paymentMethod": paymentMethodDictionary
-                                                };
+        NSDictionary * paymentMethodDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                         paymentNetwork, @"network",
+                         paymentType, @"type",
+                         displayName, @"displayName",
+                         nil];
+        NSDictionary * cryptogramDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+                         paymentDataDictionary, @"paymentData",
+                         transactionIdentifier, @"transactionIdentifier",
+                         paymentMethodDictionary, @"paymentMethod",
+                         nil];
 
         NSDictionary *cardCryptogramPacketDictionary = cryptogramDictionary;
         NSData *cardCryptogramPacketData = [NSJSONSerialization dataWithJSONObject:cardCryptogramPacketDictionary options:0 error:nil];
         NSString *cardCryptogramPacketString = [[NSString alloc] initWithData:cardCryptogramPacketData encoding:NSUTF8StringEncoding];
+
+        // NSLog(@"ApplePay: %@", cardCryptogramPacketString);
 
         self.requestPaymentResolve(cardCryptogramPacketString);
         self.requestPaymentResolve = NULL;
